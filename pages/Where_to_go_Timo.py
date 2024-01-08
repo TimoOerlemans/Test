@@ -14,7 +14,7 @@ def extract_coordinates(geo_shape):
     return ast.literal_eval(geo_shape[0])['coordinates'][0]
 
 # Extracting coordinates from the GeoJSON-like structure
-unique_projects['Coordinates'] = unique_projects['geo_shape'].apply(extract_coordinates)
+unique_projects['coordinates'] = unique_projects['geo_shape'].apply(extract_coordinates)
 
 # Displaying the table with NAAMPROJECT and Coordinates
-st.write(unique_projects[['NAAMPROJECT', 'Coordinates']])
+st.write(unique_projects[['NAAMPROJECT', 'coordinates']])
