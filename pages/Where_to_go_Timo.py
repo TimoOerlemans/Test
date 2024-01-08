@@ -4,36 +4,39 @@ import folium
 from streamlit_folium import folium_static
 import json
 
-data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
+# Read the dataset
+data = pd.read_csv('./data/Timo_Where_to_go.csv')
 
-# Kaart van Eindhoven initialiseren
+# Initialize the map
 m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
 
-# Voeg een selectiebox toe om projectfasen te filteren
-selected_phase = st.sidebar.selectbox('Selecteer projectfase', data['PROJECTFASE'].unique())
+# Define a function to add polygons to the map based on filter
+def add_polygons(df, selected_filter):
+    filtered_data = df[df['PROJECTFASE'] == selected_filter]
+    for index, row in filtered_data.iterrows():
+        try:
+            geo_shape = json.loads(row['geo_shape'])
+            coordinates = geo_shape['coordinates']
 
-# Filter de dataset op basis van geselecteerde fase
-filtered_data = data[data['PROJECTFASE'] == selected_phase]
+            # Add polygon to the map
+            folium.Polygon(
+                locations=coordinates[0],
+                color='red',  # Change color based on conditions
+                fill=True,
+                fill_color='red',  # Change color based on conditions
+                fill_opacity=0.4,
+                popup=row['NAAMPROJECT']
+            ).add_to(m)
+        except Exception as e:
+            st.write(f"Error adding polygon for {row['NAAMPROJECT']}: {e}")
 
-# Itereren over de dataset om gebieden toe te voegen als rode polygoon op de kaart
-for index, row in filtered_data.iterrows():  # Gebruik de gefilterde data in plaats van de volledige dataset
-    try:
-        geo_shape = json.loads(row['geo_shape'])
-        coordinates = geo_shape['coordinates']
+# Sidebar filter
+selected_filter = st.sidebar.selectbox('Select Filter', data['PROJECTFASE'].unique())
 
-        # Polygoon toevoegen aan de kaart als een rode zone met projectnaam als popup
-        folium.Polygon(
-            locations=coordinates[0],  # Gebruik de coördinaten van het eerste element in de lijst
-            color='red',
-            fill=True,
-            fill_color='red',
-            fill_opacity=0.4,  # Verlaag de opaciteit voor betere zichtbaarheid
-            popup=row['NAAMPROJECT']
-        ).add_to(m)
-    except Exception as e:
-        st.write(f"Fout bij het toevoegen van polygoon voor {row['NAAMPROJECT']}: {e}")
+# Add polygons to the map based on the selected filter
+add_polygons(data, selected_filter)
 
-# Weergeven van de kaart in Streamlit
-st.header("Kaart van Eindhoven met rode gebieden voor elk project")
-st.markdown("Elk gebied vertegenwoordigt een naamproject in de dataset.")
+# Display the map
+st.header("Map of Eindhoven with Filters")
+st.markdown("Interactive map showing different areas based on filters.")
 folium_static(m)
