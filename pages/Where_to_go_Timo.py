@@ -1,42 +1,39 @@
-import streamlit as st
-import pandas as pd
 import folium
-from streamlit_folium import folium_static
-import json
+import pandas as pd
 
-# Read the dataset
-data = pd.read_csv('./data/Timo_Where_to_go.csv')
+# Assuming 'data' holds your complete dataset as a list of dictionaries
 
-# Initialize the map
-m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
+# Sample data (part of your dataset)
+data = [
+    {
+        "NAAMPROJECT": "Van Hogendorplaan 1",
+        "geometry": [[[5.508, 51.456], [5.508, 51.455], [5.508, 51.455], [5.508, 51.456]]],
+        # Add other properties...
+    },
+    {
+        "NAAMPROJECT": "Demer 47",
+        "geometry": [[[5.477, 51.439], [5.477, 51.439], [5.477, 51.439], [5.477, 51.439]]],
+        # Add other properties...
+    },
+    # Add more data...
+]
 
-# Define a function to add polygons to the map based on filter
-def add_polygons(df, selected_filter):
-    filtered_data = df[df['PROJECTFASE'] == selected_filter]
-    for index, row in filtered_data.iterrows():
-        try:
-            geo_shape = json.loads(row['geo_shape'])
-            coordinates = geo_shape['coordinates']
+# Create a DataFrame from the data
+df = pd.DataFrame(data)
 
-            # Add polygon to the map
-            folium.Polygon(
-                locations=coordinates[0],
-                color='red',  # Change color based on conditions
-                fill=True,
-                fill_color='red',  # Change color based on conditions
-                fill_opacity=0.4,
-                popup=row['NAAMPROJECT']
-            ).add_to(m)
-        except Exception as e:
-            st.write(f"Error adding polygon for {row['NAAMPROJECT']}: {e}")
+# Create a folium map centered in Eindhoven
+m = folium.Map(location=[51.44, 5.48], zoom_start=13)
 
-# Sidebar filter
-selected_filter = st.sidebar.selectbox('Select Filter', data['PROJECTFASE'].unique())
-
-# Add polygons to the map based on the selected filter
-add_polygons(data, selected_filter)
+# Add markers for each data point
+for index, row in df.iterrows():
+    folium.Polygon(
+        locations=row['geometry'],
+        popup=row['NAAMPROJECT'],
+        color='red',  # Initial color
+        fill=True,
+        fill_color='red',  # Initial fill color
+        fill_opacity=0.7,
+    ).add_to(m)
 
 # Display the map
-st.header("Map of Eindhoven with Filters")
-st.markdown("Interactive map showing different areas based on filters.")
-folium_static(m)
+m.save('map_with_filters.html')
