@@ -1,39 +1,23 @@
-import folium
 import pandas as pd
+import folium
+from ast import literal_eval
 
-# Assuming 'data' holds your complete dataset as a list of dictionaries
+# Load your dataset into a Pandas DataFrame
+# Replace 'path_to_your_file' with the actual path to your dataset
+data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
 
-# Sample data (part of your dataset)
-data = [
-    {
-        "NAAMPROJECT": "Van Hogendorplaan 1",
-        "geometry": [[[5.508, 51.456], [5.508, 51.455], [5.508, 51.455], [5.508, 51.456]]],
-        # Add other properties...
-    },
-    {
-        "NAAMPROJECT": "Demer 47",
-        "geometry": [[[5.477, 51.439], [5.477, 51.439], [5.477, 51.439], [5.477, 51.439]]],
-        # Add other properties...
-    },
-    # Add more data...
-]
+# Create a map centered around Eindhoven
+eindhoven_map = folium.Map(location=[51.4416, 5.4697], zoom_start=13)
 
-# Create a DataFrame from the data
-df = pd.DataFrame(data)
+# Iterate through the dataset to add polygons for each area with its name
+for index, row in data.iterrows():
+    # Adjust these variables based on your dataset's column names
+    project_name = row['NAAMPROJECT']
+    coordinates = literal_eval(row['geo_shape'])['coordinates'][0]  # Extract coordinates
+    coordinates = [[coord[1], coord[0]] for coord in coordinates]  # Reformat for folium
 
-# Create a folium map centered in Eindhoven
-m = folium.Map(location=[51.44, 5.48], zoom_start=13)
-
-# Add markers for each data point
-for index, row in df.iterrows():
-    folium.Polygon(
-        locations=row['geometry'],
-        popup=row['NAAMPROJECT'],
-        color='red',  # Initial color
-        fill=True,
-        fill_color='red',  # Initial fill color
-        fill_opacity=0.7,
-    ).add_to(m)
+    # Create a polygon for each area
+    folium.Polygon(locations=coordinates, color='red', popup=project_name).add_to(eindhoven_map)
 
 # Display the map
-m.save('map_with_filters.html')
+eindhoven_map.save("eindhoven_areas_map.html")
