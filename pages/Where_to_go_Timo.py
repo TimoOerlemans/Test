@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import folium
 from streamlit_folium import folium_static
-import json
 
 data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
 
@@ -17,15 +16,15 @@ filtered_data = data[data['PROJECTFASE'] == selected_phase]
 
 # Itereren over de dataset om gebieden toe te voegen als rode polygoon op de kaart
 for index, row in data.iterrows():
-    coordinates = json.loads(row['geo_point_2d'])
+    coordinates = eval(row['geo_point_2d'])  # Assuming 'geo_point_2d' contains valid Python literal
 
     # Polygoon toevoegen aan de kaart als een rode zone met projectnaam als popup
     folium.Polygon(
-        locations=coordinates[0],
+        locations=coordinates,
         color='red',
         fill=True,
         fill_color='red',
-        fill_opacity=1,
+        fill_opacity=0.4,  # Reduced opacity for better visualization of overlapping areas
         popup=row['NAAMPROJECT']
     ).add_to(m)
 
