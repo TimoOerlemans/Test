@@ -1,20 +1,27 @@
 import streamlit as st
+import geopandas as gpd
+import folium
 import pandas as pd
-import ast
 
-# Assuming 'data' is your dataset containing the project information
-# Replace 'path_to_your_file.csv' with the actual path to your dataset
-data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
+# Assuming your data is in a variable called 'data'
+# Load your data into a GeoDataFrame
+gdf = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
 
-# Extracting unique NAAMPROJECT values and their coordinates
-unique_projects = data.groupby('NAAMPROJECT')['geo_shape'].apply(list).reset_index()
+# Create a unique list of project names
+unique_projects = gdf['NAAMPROJECT'].unique()
 
-# Function to extract coordinates from the GeoJSON-like structure
-def extract_coordinates(geo_shape):
-    return ast.literal_eval(geo_shape[0])['coordinates'][0]
+# Let the user choose a project to display
+selected_project = st.selectbox('Select a project', unique_projects)
 
-# Extracting coordinates from the GeoJSON-like structure
-unique_projects['Coordinates'] = unique_projects['geo_shape'].apply(extract_coordinates)
+# Filter the GeoDataFrame based on the selected project
+selected_data = gdf[gdf['NAAMPROJECT'] == selected_project]
 
-# Displaying the table with NAAMPROJECT and Coordinates using st.table
-st.table(unique_projects[['NAAMPROJECT', 'Coordinates']])
+# Create a map centered around Eindhoven
+m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
+
+# Add polygons to the map for the selected project
+for idx, row in selected_data.iterrows():
+    folium.GeoJson(row['geo_shape'], name=row['NAAMPROJECT']).add_to(m)
+
+# Display the map using Streamlit
+folium_static(m)
