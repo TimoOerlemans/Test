@@ -16,7 +16,14 @@ filtered_data = data[data['PROJECTFASE'] == selected_phase]
 
 # Itereren over de dataset om gebieden toe te voegen als rode polygoon op de kaart
 for index, row in data.iterrows():
-    coordinates = eval(row['geo_point_2d'])  # Assuming 'geo_point_2d' contains valid Python literal
+    coordinates_str = row['geo_point_2d']
+
+    # Try to convert the string representation to a list of coordinates
+    try:
+        coordinates = eval(coordinates_str)
+    except Exception as e:
+        print(f"Error converting coordinates: {e}")
+        continue
 
     # Polygoon toevoegen aan de kaart als een rode zone met projectnaam als popup
     folium.Polygon(
