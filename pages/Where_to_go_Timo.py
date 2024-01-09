@@ -36,7 +36,7 @@ m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
 def update_project_list():
     displayed_projects = update_displayed_projects()
     project_list.markdown("### Unieke Naamprojecten en Coördinaten")
-    project_list.write(displayed_projects[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates())
+    project_list.write(displayed_projects[['NAAMPROJECT', 'PRIJSKLASSE', 'WONINGTYPE', ]].drop_duplicates())
 
 # Update displayed projects and list
 update_project_list()
