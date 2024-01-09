@@ -5,28 +5,21 @@ from streamlit_folium import folium_static
 
 data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
 
+# Show unique values of PRIJSKLASSE
+unique_prices = data['PRIJSKLASSE'].unique()
+price_checkboxes = {price: st.sidebar.checkbox(f"Toon '{price}' projects", value=True) for price in unique_prices}
+
 # Show unique naamprojecten and their coordinates at the top
 unique_projects = data[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates()
 project_list = st.empty()  # Placeholder to dynamically update the list
 
 # Function to update the displayed projects based on checkboxes
 def update_displayed_projects():
-    filtered_data = pd.DataFrame()
-    if show_in_ontwikkeling and show_gereed:
-        filtered_data = data  # Show all projects if both are selected
-    elif show_in_ontwikkeling:
-        filtered_data = data[data['PROJECTFASE'] == 'In ontwikkeling']
-    elif show_gereed:
-        filtered_data = data[data['PROJECTFASE'] == 'Gereed']
-    else:
-        filtered_data = data  # Show all projects if neither checkbox is selected
+    filtered_data = data.copy()
+    for price, checkbox in price_checkboxes.items():
+        if not checkbox:
+            filtered_data = filtered_data[filtered_data['PRIJSKLASSE'] != price]
     return filtered_data
-
-# Checkbox for 'In ontwikkeling' projects
-show_in_ontwikkeling = st.sidebar.checkbox("Toon 'In Ontwikkeling' projecten", value=True)
-
-# Checkbox for 'Gereed' projects
-show_gereed = st.sidebar.checkbox("Toon 'Gereed' projecten", value=True)
 
 # Kaart van Eindhoven initialiseren
 m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
@@ -54,8 +47,7 @@ for index, row in data.iterrows():
         continue
 
     # Add a marker for each project at its location if it's in the filtered data
-    if (row['PROJECTFASE'] == 'In ontwikkeling' and show_in_ontwikkeling) or \
-       (row['PROJECTFASE'] == 'Gereed' and show_gereed):
+    if row['PRIJSKLASSE'] in price_checkboxes and price_checkboxes[row['PRIJSKLASSE']]:
         folium.Marker(
             location=[latitude, longitude],
             popup=row['NAAMPROJECT'],
