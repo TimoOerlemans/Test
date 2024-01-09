@@ -13,6 +13,10 @@ price_checkboxes = {price: st.sidebar.checkbox(f"Toon '{price}' projects", value
 unique_phases = data['PROJECTFASE'].unique()
 phase_checkboxes = {phase: st.sidebar.checkbox(f"Toon '{phase}' projects", value=True) for phase in unique_phases}
 
+# Show unique values of WONINGTYPE
+unique_woningtypes = data['WONINGTYPE'].unique()
+woningtype_checkboxes = {woningtype: st.sidebar.checkbox(f"Toon '{woningtype}' projects", value=True) for woningtype in unique_woningtypes}
+
 # Show unique naamprojecten and their coordinates at the top
 unique_projects = data[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates()
 project_list = st.empty()  # Placeholder to dynamically update the list
@@ -27,6 +31,11 @@ def update_displayed_projects():
     for price, checkbox in price_checkboxes.items():
         if not checkbox:
             filtered_data = filtered_data[filtered_data['PRIJSKLASSE'] != price]
+
+    for woningtype, checkbox in woningtype_checkboxes.items():
+        if not checkbox:
+            filtered_data = filtered_data[filtered_data['WONINGTYPE'] != woningtype]
+
     return filtered_data
 
 # Kaart van Eindhoven initialiseren
@@ -36,7 +45,7 @@ m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
 def update_project_list():
     displayed_projects = update_displayed_projects()
     project_list.markdown("### Unieke Naamprojecten en Coördinaten")
-    project_list.write(displayed_projects[['NAAMPROJECT', 'geo_point_2d', 'PRIJSKLASSE']].drop_duplicates())
+    project_list.write(displayed_projects[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates())
 
 # Update displayed projects and list
 update_project_list()
@@ -56,7 +65,8 @@ for index, row in data.iterrows():
 
     # Add a marker for each project at its location if it's in the filtered data
     if row['PRIJSKLASSE'] in price_checkboxes and price_checkboxes[row['PRIJSKLASSE']] \
-       and row['PROJECTFASE'] in phase_checkboxes and phase_checkboxes[row['PROJECTFASE']]:
+       and row['PROJECTFASE'] in phase_checkboxes and phase_checkboxes[row['PROJECTFASE']] \
+       and row['WONINGTYPE'] in woningtype_checkboxes and woningtype_checkboxes[row['WONINGTYPE']]:
         folium.Marker(
             location=[latitude, longitude],
             popup=row['NAAMPROJECT'],
@@ -66,4 +76,18 @@ for index, row in data.iterrows():
 # Weergeven van de kaart in Streamlit
 st.header("Kaart van Eindhoven met rode punten voor elk project")
 st.markdown("Elk punt vertegenwoordigt een naamproject in de dataset.")
+
+st.sidebar.header('Filters')
+st.sidebar.subheader('PRIJSKLASSE')
+for price in unique_prices:
+    price_checkboxes[price] = st.sidebar.checkbox(f"Toon '{price}' projects", value=True)
+
+st.sidebar.subheader('PROJECTFASE')
+for phase in unique_phases:
+    phase_checkboxes[phase] = st.sidebar.checkbox(f"Toon '{phase}' projects", value=True)
+
+st.sidebar.subheader('WONINGTYPE')
+for woningtype in unique_woningtypes:
+    woningtype_checkboxes[woningtype] = st.sidebar.checkbox(f"Toon '{woningtype}' projects", value=True)
+
 folium_static(m)
