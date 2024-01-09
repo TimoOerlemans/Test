@@ -5,6 +5,10 @@ from streamlit_folium import folium_static
 
 data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
 
+# Drop rows with NaN values in 'PRIJSKLASSE', 'PROJECTFASE', and 'WONINGTYPE' columns
+columns_to_check = ['PRIJSKLASSE', 'PROJECTFASE', 'WONINGTYPE']
+data = data.dropna(subset=columns_to_check)
+
 # Show unique values of PRIJSKLASSE
 unique_prices = data['PRIJSKLASSE'].unique()
 price_checkboxes = {price: st.sidebar.checkbox(f"Toon '{price}' projects", key=f"price_{price}", value=True) for price in unique_prices}
@@ -16,10 +20,6 @@ phase_checkboxes = {phase: st.sidebar.checkbox(f"Toon '{phase}' projects", key=f
 # Show unique values of WONINGTYPE
 unique_woningtypes = data['WONINGTYPE'].unique()
 woningtype_checkboxes = {woningtype: st.sidebar.checkbox(f"Toon '{woningtype}' projects", key=f"woningtype_{woningtype}", value=True) for woningtype in unique_woningtypes}
-
-# Show unique naamprojecten and their coordinates at the top
-unique_projects = data[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates()
-project_list = st.empty()  # Placeholder to dynamically update the list
 
 # Function to update the displayed projects based on checkboxes
 def update_displayed_projects():
