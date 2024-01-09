@@ -9,6 +9,10 @@ data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
 unique_prices = data['PRIJSKLASSE'].unique()
 price_checkboxes = {price: st.sidebar.checkbox(f"Toon '{price}' projects", value=True) for price in unique_prices}
 
+# Show unique values of NAAMPROJECT
+unique_projects = data['NAAMPROJECT'].unique()
+project_checkboxes = {project: st.sidebar.checkbox(f"Toon '{project}' projects", value=True) for project in unique_projects}
+
 # Show unique naamprojecten and their coordinates at the top
 unique_projects = data[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates()
 project_list = st.empty()  # Placeholder to dynamically update the list
@@ -16,6 +20,10 @@ project_list = st.empty()  # Placeholder to dynamically update the list
 # Function to update the displayed projects based on checkboxes
 def update_displayed_projects():
     filtered_data = data.copy()
+    for project, checkbox in project_checkboxes.items():
+        if not checkbox:
+            filtered_data = filtered_data[filtered_data['NAAMPROJECT'] != project]
+
     for price, checkbox in price_checkboxes.items():
         if not checkbox:
             filtered_data = filtered_data[filtered_data['PRIJSKLASSE'] != price]
@@ -47,7 +55,8 @@ for index, row in data.iterrows():
         continue
 
     # Add a marker for each project at its location if it's in the filtered data
-    if row['PRIJSKLASSE'] in price_checkboxes and price_checkboxes[row['PRIJSKLASSE']]:
+    if row['PRIJSKLASSE'] in price_checkboxes and price_checkboxes[row['PRIJSKLASSE']] \
+       and row['NAAMPROJECT'] in project_checkboxes and project_checkboxes[row['NAAMPROJECT']]:
         folium.Marker(
             location=[latitude, longitude],
             popup=row['NAAMPROJECT'],
