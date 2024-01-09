@@ -11,17 +11,20 @@ unique_projects = data[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates()
 st.header("Unieke Naamprojecten en Coördinaten")
 st.write(unique_projects)
 
+# Checkbox to filter by projectfase
+show_only_selected_phase = st.sidebar.checkbox("Toon alleen 'In Ontwikkeling' of 'Gereed' projecten")
+
 # Kaart van Eindhoven initialiseren
 m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
 
-# Voeg een selectiebox toe om projectfasen te filteren
-selected_phase = st.sidebar.selectbox('Selecteer projectfase', data['PROJECTFASE'].unique())
-
-# Filter de dataset op basis van geselecteerde fase
-filtered_data = data[data['PROJECTFASE'] == selected_phase]
+# Filter based on checkbox selection
+if show_only_selected_phase:
+    filtered_data = data[data['PROJECTFASE'].isin(['In ontwikkeling', 'Gereed'])]
+else:
+    filtered_data = data
 
 # Itereren over de dataset om gebieden toe te voegen als rode polygoon op de kaart
-for index, row in data.iterrows():
+for index, row in filtered_data.iterrows():
     coordinates_str = row['geo_point_2d']
 
     # Convert the string representation to a list of coordinates
