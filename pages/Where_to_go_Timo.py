@@ -7,15 +7,15 @@ data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
 
 # Show unique values of PRIJSKLASSE
 unique_prices = data['PRIJSKLASSE'].unique()
-price_checkboxes = {price: st.sidebar.checkbox(f"Toon '{price}' projects", value=True) for price in unique_prices}
+price_checkboxes = {price: st.sidebar.checkbox(f"Toon '{price}' projects", key=f"price_{price}", value=True) for price in unique_prices}
 
 # Show unique values of PROJECTFASE
 unique_phases = data['PROJECTFASE'].unique()
-phase_checkboxes = {phase: st.sidebar.checkbox(f"Toon '{phase}' projects", value=True) for phase in unique_phases}
+phase_checkboxes = {phase: st.sidebar.checkbox(f"Toon '{phase}' projects", key=f"phase_{phase}", value=True) for phase in unique_phases}
 
 # Show unique values of WONINGTYPE
 unique_woningtypes = data['WONINGTYPE'].unique()
-woningtype_checkboxes = {woningtype: st.sidebar.checkbox(f"Toon '{woningtype}' projects", value=True) for woningtype in unique_woningtypes}
+woningtype_checkboxes = {woningtype: st.sidebar.checkbox(f"Toon '{woningtype}' projects", key=f"woningtype_{woningtype}", value=True) for woningtype in unique_woningtypes}
 
 # Show unique naamprojecten and their coordinates at the top
 unique_projects = data[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates()
@@ -80,14 +80,14 @@ st.markdown("Elk punt vertegenwoordigt een naamproject in de dataset.")
 st.sidebar.header('Filters')
 st.sidebar.subheader('PRIJSKLASSE')
 for price in unique_prices:
-    price_checkboxes[price] = st.sidebar.checkbox(f"Toon '{price}' projects", value=True)
+    price_checkboxes[price] = st.sidebar.checkbox(f"Toon '{price}' projects", key=f"price_{price}", value=True)
 
 st.sidebar.subheader('PROJECTFASE')
 for phase in unique_phases:
-    phase_checkboxes[phase] = st.sidebar.checkbox(f"Toon '{phase}' projects", value=True)
+    phase_checkboxes[phase] = st.sidebar.checkbox(f"Toon '{phase}' projects", key=f"phase_{phase}", value=True)
 
 st.sidebar.subheader('WONINGTYPE')
 for woningtype in unique_woningtypes:
-    woningtype_checkboxes[woningtype] = st.sidebar.checkbox(f"Toon '{woningtype}' projects", value=True)
+    woningtype_checkboxes[woningtype] = st.sidebar.checkbox(f"Toon '{woningtype}' projects", key=f"woningtype_{woningtype}", value=True)
 
 folium_static(m)
