@@ -18,13 +18,15 @@ def update_displayed_projects():
         filtered_data = data[data['PROJECTFASE'] == 'In ontwikkeling']
     elif show_gereed:
         filtered_data = data[data['PROJECTFASE'] == 'Gereed']
+    else:
+        filtered_data = data  # Show all projects if neither checkbox is selected
     return filtered_data
 
 # Checkbox for 'In ontwikkeling' projects
-show_in_ontwikkeling = st.sidebar.checkbox("Toon 'In Ontwikkeling' projecten")
+show_in_ontwikkeling = st.sidebar.checkbox("Toon 'In Ontwikkeling' projecten", value=True)
 
 # Checkbox for 'Gereed' projects
-show_gereed = st.sidebar.checkbox("Toon 'Gereed' projecten")
+show_gereed = st.sidebar.checkbox("Toon 'Gereed' projecten", value=True)
 
 # Kaart van Eindhoven initialiseren
 m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
@@ -52,13 +54,8 @@ for index, row in data.iterrows():
         continue
 
     # Add a marker for each project at its location if it's in the filtered data
-    if row['PROJECTFASE'] == 'In ontwikkeling' and show_in_ontwikkeling:
-        folium.Marker(
-            location=[latitude, longitude],
-            popup=row['NAAMPROJECT'],
-            icon=folium.Icon(color='red', icon='circle')
-        ).add_to(m)
-    elif row['PROJECTFASE'] == 'Gereed' and show_gereed:
+    if (row['PROJECTFASE'] == 'In ontwikkeling' and show_in_ontwikkeling) or \
+       (row['PROJECTFASE'] == 'Gereed' and show_gereed):
         folium.Marker(
             location=[latitude, longitude],
             popup=row['NAAMPROJECT'],
