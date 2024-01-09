@@ -5,6 +5,12 @@ from streamlit_folium import folium_static
 
 data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
 
+# Show unique naamprojecten and their coordinates at the top
+unique_projects = data[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates()
+
+st.header("Unieke Naamprojecten en Coördinaten")
+st.write(unique_projects)
+
 # Kaart van Eindhoven initialiseren
 m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
 
