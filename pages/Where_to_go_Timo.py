@@ -18,9 +18,11 @@ filtered_data = data[data['PROJECTFASE'] == selected_phase]
 for index, row in data.iterrows():
     coordinates_str = row['geo_point_2d']
 
-    # Try to convert the string representation to a list of coordinates
+    # Convert the string representation to a list of coordinates
     try:
-        coordinates = eval(coordinates_str)
+        # Assuming the coordinates are a list of [latitude, longitude]
+        coordinates = [float(coord) for coord in coordinates_str.split(',')]
+        coordinates = [(coordinates[1], coordinates[0])]  # Reformat to [latitude, longitude] pairs
     except Exception as e:
         print(f"Error converting coordinates: {e}")
         continue
