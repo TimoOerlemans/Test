@@ -7,9 +7,18 @@ data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
 
 # Show unique naamprojecten and their coordinates at the top
 unique_projects = data[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates()
+project_list = st.empty()  # Placeholder to dynamically update the list
 
-st.header("Unieke Naamprojecten en Coördinaten")
-st.write(unique_projects)
+# Function to update the displayed projects based on checkboxes
+def update_displayed_projects():
+    filtered_data = pd.DataFrame()
+    if show_in_ontwikkeling and show_gereed:
+        filtered_data = data  # Show all projects if both are selected
+    elif show_in_ontwikkeling:
+        filtered_data = data[data['PROJECTFASE'] == 'In ontwikkeling']
+    elif show_gereed:
+        filtered_data = data[data['PROJECTFASE'] == 'Gereed']
+    return filtered_data
 
 # Checkbox for 'In ontwikkeling' projects
 show_in_ontwikkeling = st.sidebar.checkbox("Toon 'In Ontwikkeling' projecten")
@@ -20,18 +29,17 @@ show_gereed = st.sidebar.checkbox("Toon 'Gereed' projecten")
 # Kaart van Eindhoven initialiseren
 m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
 
-# Filter based on checkbox selection
-if show_in_ontwikkeling and show_gereed:
-    filtered_data = data  # Show all projects if both are selected
-elif show_in_ontwikkeling:
-    filtered_data = data[data['PROJECTFASE'] == 'In ontwikkeling']
-elif show_gereed:
-    filtered_data = data[data['PROJECTFASE'] == 'Gereed']
-else:
-    filtered_data = pd.DataFrame()  # Show no projects if none selected
+# Function to update the list of projects
+def update_project_list():
+    displayed_projects = update_displayed_projects()
+    project_list.markdown("### Unieke Naamprojecten en Coördinaten")
+    project_list.write(displayed_projects[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates())
+
+# Update displayed projects and list
+update_project_list()
 
 # Add markers for project locations
-for index, row in filtered_data.iterrows():
+for index, row in data.iterrows():
     coordinates_str = row['geo_point_2d']
 
     # Convert the string representation to latitude and longitude
@@ -43,12 +51,19 @@ for index, row in filtered_data.iterrows():
         print(f"Error converting coordinates: {e}")
         continue
 
-    # Add a marker for each project at its location
-    folium.Marker(
-        location=[latitude, longitude],
-        popup=row['NAAMPROJECT'],
-        icon=folium.Icon(color='red', icon='circle')
-    ).add_to(m)
+    # Add a marker for each project at its location if it's in the filtered data
+    if row['PROJECTFASE'] == 'In ontwikkeling' and show_in_ontwikkeling:
+        folium.Marker(
+            location=[latitude, longitude],
+            popup=row['NAAMPROJECT'],
+            icon=folium.Icon(color='red', icon='circle')
+        ).add_to(m)
+    elif row['PROJECTFASE'] == 'Gereed' and show_gereed:
+        folium.Marker(
+            location=[latitude, longitude],
+            popup=row['NAAMPROJECT'],
+            icon=folium.Icon(color='red', icon='circle')
+        ).add_to(m)
 
 # Weergeven van de kaart in Streamlit
 st.header("Kaart van Eindhoven met rode punten voor elk project")
