@@ -50,7 +50,7 @@ for index, row in filtered_data.iterrows():
         icon=folium.Marker(
             location=[latitude, longitude],
             popup=row['NAAMPROJECT'],
-            icon=folium.Icon(color='lightred', icon='circle', prefix='fa', opacity=0.6)
+            icon=folium.Icon(color='lightred', icon='circle', opacity=0.6)
         )
     ).add_to(m)
 
