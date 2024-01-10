@@ -33,14 +33,7 @@ col1, col2 = st.columns([1, 3])  # Adjust column ratios as needed
 # Show filters in the first column
 with col1:
     st.header('Filters')
-    st.write("Filter by Prijsklasse")
-    selected_prijsklasse = st.multiselect("Select Prijsklasse", list(unique_prijsklasse))
 
-    st.write("Filter by Projectfase")
-    selected_projectfase = st.multiselect("Select Projectfase", list(unique_projectfase))
-
-    st.write("Filter by Woningtype")
-    selected_woningtype = st.multiselect("Select Woningtype", list(unique_woningtype))
 
 # Show the map and list in the second column
 with col2:
