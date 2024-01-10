@@ -66,7 +66,7 @@ for index, row in data.iterrows():
         folium.Marker(
             location=[latitude, longitude],
             popup=row['NAAMPROJECT'],
-            icon=folium.Icon(color='red',opacity='0.5', icon='circle', icon_size=(10, 10))
+            icon=folium.Icon(color='red', opacity='0.5', icon='circle', icon_size=(10, 10))
         ).add_to(m)
 
 # Function to update the list of projects
