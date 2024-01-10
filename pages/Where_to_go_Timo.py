@@ -9,48 +9,49 @@ data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
 columns_to_check = ['PRIJSKLASSE', 'PROJECTFASE', 'WONINGTYPE']
 data = data.dropna(subset=columns_to_check)
 
+# Generate unique values for filters
+unique_prijsklasse = data['PRIJSKLASSE'].unique()
+unique_projectfase = data['PROJECTFASE'].unique()
+unique_woningtype = data['WONINGTYPE'].unique()
 
-# Show unique values of PRIJSKLASSE
-unique_prices = data['PRIJSKLASSE'].unique()
-price_checkboxes = {price: st.sidebar.checkbox(f"Toon '{price}' projects", value=True) for price in unique_prices}
+# Filter projects based on selected filters
+selected_prijsklasse = st.multiselect('Selecteer prijsklasse', list(unique_prijsklasse))
+selected_projectfase = st.multiselect('Selecteer projectfase', list(unique_projectfase))
+selected_woningtype = st.multiselect('Selecteer woningtype', list(unique_woningtype))
 
-# Show unique values of PROJECTFASE
-unique_phases = data['PROJECTFASE'].unique()
-phase_checkboxes = {phase: st.sidebar.checkbox(f"'{phase}'", value=True) for phase in unique_phases}
+# Filter the data based on selected filters
+filtered_data = data.copy()
+if selected_prijsklasse:
+    filtered_data = filtered_data[filtered_data['PRIJSKLASSE'].isin(selected_prijsklasse)]
+if selected_projectfase:
+    filtered_data = filtered_data[filtered_data['PROJECTFASE'].isin(selected_projectfase)]
+if selected_woningtype:
+    filtered_data = filtered_data[filtered_data['WONINGTYPE'].isin(selected_woningtype)]
 
-# Show unique values of PROJECTFASE
-unique_type = data['WONINGTYPE'].unique()
-type_checkboxes = {type: st.sidebar.checkbox(f"Toon '{type}'", value=True) for type in unique_type}
+# Create columns layout
+col1, col2 = st.columns([1, 3])  # Adjust column ratios as needed
 
-# Show unique naamprojecten and their coordinates at the top
-unique_projects = data[['NAAMPROJECT', 'geo_point_2d']].drop_duplicates()
-project_list = st.empty()  # Placeholder to dynamically update the list
+# Show filters in the first column
+with col1:
+    st.header('Filters')
+    # Display unique values for each filter
+    st.write("Filter by Prijsklasse")
+    selected_prijsklasse = st.multiselect("Select Prijsklasse", list(unique_prijsklasse))
 
-# Function to update the displayed projects based on checkboxes
-def update_displayed_projects():
-    filtered_data = data.copy()
-    for phase, checkbox in phase_checkboxes.items():
-        if not checkbox:
-            filtered_data = filtered_data[filtered_data['PROJECTFASE'] != phase]
+    st.write("Filter by Projectfase")
+    selected_projectfase = st.multiselect("Select Projectfase", list(unique_projectfase))
 
-    for price, checkbox in price_checkboxes.items():
-        if not checkbox:
-            filtered_data = filtered_data[filtered_data['PRIJSKLASSE'] != price]
-    return filtered_data
+    st.write("Filter by Woningtype")
+    selected_woningtype = st.multiselect("Select Woningtype", list(unique_woningtype))
 
-    for type, checkbox in type_checkboxes.items():
-        if not checkbox:
-            filtered_data = filtered_data[filtered_data['WONINGTYPE'] != type]
-    return filtered_data
+# Show the map and list in the second column
+with col2:
+    # Show the map with markers
+    m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
 
-# Kaart van Eindhoven initialiseren
-m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
-
-
-# Add markers for project locations
-for index, row in data.iterrows():
-    coordinates_str = row['geo_point_2d']
-
+    # Add markers for project locations based on filtered data
+    for index, row in filtered_data.iterrows():
+        coordinates_str = row['geo_point_2d']
     # Convert the string representation to latitude and longitude
     try:
         # Assuming the coordinates are a list of [latitude, longitude]
@@ -61,24 +62,20 @@ for index, row in data.iterrows():
         continue
 
     # Add a marker for each project at its location if it's in the filtered data
-    if row['PRIJSKLASSE'] in price_checkboxes and price_checkboxes[row['PRIJSKLASSE']] \
-       and row['PROJECTFASE'] in phase_checkboxes and phase_checkboxes[row['PROJECTFASE']]:
+    if row['PRIJSKLASSE'] in selected_prijsklasse and selected_prijsklasse[row['PRIJSKLASSE']] \
+            and row['PROJECTFASE'] in selected_projectfase and selected_projectfase[row['PROJECTFASE']] \
+            and row['WONINGTYPE'] in selected_woningtype and selected_woningtype[row['WONINGTYPE']]:
         folium.Marker(
             location=[latitude, longitude],
             popup=row['NAAMPROJECT'],
-            icon=folium.Icon(color='red', opacity='0.5', icon='dot', icon_size=(10, 10))
+            icon=folium.Icon(color='lightred', icon='circle', prefix='fa', opacity=0.6, icon_size=(10, 10),
+                             shadow=False)  # Set shadow to False
         ).add_to(m)
 
-# Function to update the list of projects
-def update_project_list():
-    displayed_projects = update_displayed_projects()
-    project_list.markdown("### Unieke Naamprojecten en Coördinaten")
-    project_list.write(displayed_projects[['NAAMPROJECT', 'PRIJSKLASSE', 'WONINGTYPE', 'PROJECTFASE']].drop_duplicates())
+    st.header("Kaart van Eindhoven met rode gebieden voor elk project")
+    st.markdown("Elk gebied vertegenwoordigt een naamproject in de dataset.")
+    folium_static(m)
 
-# Update displayed projects and list
-update_project_list()
-
-# Weergeven van de kaart in Streamlit
-st.header("Kaart van Eindhoven met rode punten voor elk project")
-st.markdown("Elk punt vertegenwoordigt een naamproject in de dataset.")
-folium_static(m)
+    # Show the list of filtered data
+    st.header('Filtered Projectenlijst')
+    st.dataframe(filtered_data)
