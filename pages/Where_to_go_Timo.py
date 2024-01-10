@@ -56,4 +56,4 @@ folium_static(m)
 
 # Show the list of filtered data
 st.header('Filtered Projectenlijst')
-st.dataframe(filtered_data, width=1000)
+st.dataframe(filtered_data, width=800)
