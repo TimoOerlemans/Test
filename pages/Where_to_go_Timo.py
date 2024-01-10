@@ -12,7 +12,7 @@ custom_icon_url = './images/pin.png'
 custom_icon = folium.CustomIcon(
     custom_icon_url,
     icon_size=(16, 28),  # Set the size of the icon (width, height)
-    icon_anchor=(8, 28),  # Set the anchor point for the icon
+    icon_anchor=(0, 0),  # Set the anchor point for the icon
 )
 
 # Drop rows with NaN values in 'PRIJSKLASSE', 'PROJECTFASE', and 'WONINGTYPE' columns
