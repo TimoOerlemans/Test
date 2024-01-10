@@ -28,38 +28,34 @@ filtered_data = filtered_data[
     (filtered_data['WONINGTYPE'].isin(selected_woningtype))
 ]
 
-# Create columns layout
-col1, col2 = st.columns([1, 3])  # Adjust column ratios as needed
 
-# Show the map and list in the second column
-with col2:
-    # Show the map with markers
-    m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
+# Show the map with markers
+m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
 
-    # Add markers for project locations based on filtered data
-    for index, row in filtered_data.iterrows():
-        coordinates_str = row['geo_point_2d']
-        # Convert the string representation to latitude and longitude
-        try:
-            # Assuming the coordinates are a list of [latitude, longitude]
-            coordinates = [float(coord) for coord in coordinates_str.split(',')]
-            latitude, longitude = coordinates[0], coordinates[1]
-        except Exception as e:
-            print(f"Error converting coordinates: {e}")
-            continue
+# Add markers for project locations based on filtered data
+for index, row in filtered_data.iterrows():
+    coordinates_str = row['geo_point_2d']
+    # Convert the string representation to latitude and longitude
+    try:
+        # Assuming the coordinates are a list of [latitude, longitude]
+        coordinates = [float(coord) for coord in coordinates_str.split(',')]
+        latitude, longitude = coordinates[0], coordinates[1]
+    except Exception as e:
+        print(f"Error converting coordinates: {e}")
+        continue
 
-        # Add a marker for each project at its location if it's in the filtered data
-        folium.Marker(
-            location=[latitude, longitude],
-            popup=row['NAAMPROJECT'],
-            icon=folium.Icon(color='lightred', icon='circle', prefix='fa', opacity=0.6, icon_size=(10, 10),
-                             shadow=False)  # Set shadow to False
-        ).add_to(m)
+    # Add a marker for each project at its location if it's in the filtered data
+    folium.Marker(
+        location=[latitude, longitude],
+        popup=row['NAAMPROJECT'],
+        icon=folium.Icon(color='lightred', icon='circle', prefix='fa', opacity=0.6, icon_size=(10, 10),
+                            shadow=False)  # Set shadow to False
+    ).add_to(m)
 
-    st.header("Kaart van Eindhoven met rode gebieden voor elk project")
-    st.markdown("Elk gebied vertegenwoordigt een naamproject in de dataset.")
-    folium_static(m)
+st.header("Kaart van Eindhoven met rode gebieden voor elk project")
+st.markdown("Elk gebied vertegenwoordigt een naamproject in de dataset.")
+folium_static(m)
 
-    # Show the list of filtered data
-    st.header('Filtered Projectenlijst')
-    st.dataframe(filtered_data)
+# Show the list of filtered data
+st.header('Filtered Projectenlijst')
+st.dataframe(filtered_data)
