@@ -46,14 +46,6 @@ def update_displayed_projects():
 # Kaart van Eindhoven initialiseren
 m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
 
-# Function to update the list of projects
-def update_project_list():
-    displayed_projects = update_displayed_projects()
-    project_list.markdown("### Unieke Naamprojecten en Coördinaten")
-    project_list.write(displayed_projects[['NAAMPROJECT', 'PRIJSKLASSE', 'WONINGTYPE', 'PROJECTFASE']].drop_duplicates())
-
-# Update displayed projects and list
-update_project_list()
 
 # Add markers for project locations
 for index, row in data.iterrows():
@@ -74,8 +66,17 @@ for index, row in data.iterrows():
         folium.Marker(
             location=[latitude, longitude],
             popup=row['NAAMPROJECT'],
-            icon=folium.Icon(color='red', icon='circle')
+            icon=folium.Icon(color='red',opacity='0.5', icon='circle', icon_size=(10, 10))
         ).add_to(m)
+
+# Function to update the list of projects
+def update_project_list():
+    displayed_projects = update_displayed_projects()
+    project_list.markdown("### Unieke Naamprojecten en Coördinaten")
+    project_list.write(displayed_projects[['NAAMPROJECT', 'PRIJSKLASSE', 'WONINGTYPE', 'PROJECTFASE']].drop_duplicates())
+
+# Update displayed projects and list
+update_project_list()
 
 # Weergeven van de kaart in Streamlit
 st.header("Kaart van Eindhoven met rode punten voor elk project")
