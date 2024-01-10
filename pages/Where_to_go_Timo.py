@@ -21,12 +21,11 @@ selected_woningtype = st.multiselect('Selecteer woningtype', list(unique_woningt
 
 # Filter the data based on selected filters
 filtered_data = data.copy()
-if selected_prijsklasse:
-    filtered_data = filtered_data[filtered_data['PRIJSKLASSE'].isin(selected_prijsklasse)]
-if selected_projectfase:
-    filtered_data = filtered_data[filtered_data['PROJECTFASE'].isin(selected_projectfase)]
-if selected_woningtype:
-    filtered_data = filtered_data[filtered_data['WONINGTYPE'].isin(selected_woningtype)]
+filtered_data = filtered_data[
+    (filtered_data['PRIJSKLASSE'].isin(selected_prijsklasse)) &
+    (filtered_data['PROJECTFASE'].isin(selected_projectfase)) &
+    (filtered_data['WONINGTYPE'].isin(selected_woningtype))
+]
 
 # Create columns layout
 col1, col2 = st.columns([1, 3])  # Adjust column ratios as needed
@@ -34,7 +33,6 @@ col1, col2 = st.columns([1, 3])  # Adjust column ratios as needed
 # Show filters in the first column
 with col1:
     st.header('Filters')
-    # Display unique values for each filter
     st.write("Filter by Prijsklasse")
     selected_prijsklasse = st.multiselect("Select Prijsklasse", list(unique_prijsklasse))
 
@@ -52,19 +50,16 @@ with col2:
     # Add markers for project locations based on filtered data
     for index, row in filtered_data.iterrows():
         coordinates_str = row['geo_point_2d']
-    # Convert the string representation to latitude and longitude
-    try:
-        # Assuming the coordinates are a list of [latitude, longitude]
-        coordinates = [float(coord) for coord in coordinates_str.split(',')]
-        latitude, longitude = coordinates[0], coordinates[1]
-    except Exception as e:
-        print(f"Error converting coordinates: {e}")
-        continue
+        # Convert the string representation to latitude and longitude
+        try:
+            # Assuming the coordinates are a list of [latitude, longitude]
+            coordinates = [float(coord) for coord in coordinates_str.split(',')]
+            latitude, longitude = coordinates[0], coordinates[1]
+        except Exception as e:
+            print(f"Error converting coordinates: {e}")
+            continue
 
-    # Add a marker for each project at its location if it's in the filtered data
-    if row['PRIJSKLASSE'] in selected_prijsklasse and selected_prijsklasse[row['PRIJSKLASSE']] \
-            and row['PROJECTFASE'] in selected_projectfase and selected_projectfase[row['PROJECTFASE']] \
-            and row['WONINGTYPE'] in selected_woningtype and selected_woningtype[row['WONINGTYPE']]:
+        # Add a marker for each project at its location if it's in the filtered data
         folium.Marker(
             location=[latitude, longitude],
             popup=row['NAAMPROJECT'],
