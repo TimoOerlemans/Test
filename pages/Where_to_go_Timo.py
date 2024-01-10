@@ -31,11 +31,6 @@ filtered_data = filtered_data[
 # Create columns layout
 col1, col2 = st.columns([1, 3])  # Adjust column ratios as needed
 
-# Show filters in the first column
-with col1:
-    st.header('Filters')
-
-
 # Show the map and list in the second column
 with col2:
     # Show the map with markers
