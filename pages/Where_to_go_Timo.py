@@ -48,7 +48,7 @@ for index, row in filtered_data.iterrows():
     folium.Marker(
         location=[latitude, longitude],
         popup=row['NAAMPROJECT'],
-        icon=folium.Icon(color='lightred', icon='dot', prefix='fa', opacity=0.6, icon_size=(10, 10), shadow=False)  # Set shadow to False
+        icon=folium.Icon(color='lightred', icon='dot', prefix='fa', opacity=1, icon_size=(10, 10), shadow=False)  # Set shadow to False
     ).add_to(m)
 
 st.header("Kaart van Eindhoven met rode gebieden voor elk project")
@@ -57,4 +57,4 @@ folium_static(m)
 
 # Show the list of filtered data
 st.header('Filtered Projectenlijst')
-st.dataframe(filtered_data)
+st.dataframe(filtered_data, width=800)
