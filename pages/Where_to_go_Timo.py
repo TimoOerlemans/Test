@@ -28,7 +28,6 @@ filtered_data = filtered_data[
     (filtered_data['WONINGTYPE'].isin(selected_woningtype))
 ]
 
-
 # Show the map with markers
 m = folium.Map(location=[51.4416, 5.4697], zoom_start=12)
 
@@ -51,7 +50,7 @@ for index, row in filtered_data.iterrows():
         icon=folium.Marker(
             location=[latitude, longitude],
             popup=row['NAAMPROJECT'],
-            icon=folium.Icon(color='lightred', icon='circle', prefix='fa', opacity=0.6, icon_size=(5, 5))
+            icon=folium.Icon(color='lightred', icon='circle', prefix='fa', opacity=0.6)
         )
     ).add_to(m)
 
