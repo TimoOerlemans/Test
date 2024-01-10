@@ -14,6 +14,7 @@ unique_prijsklasse = data['PRIJSKLASSE'].unique()
 unique_projectfase = data['PROJECTFASE'].unique()
 unique_woningtype = data['WONINGTYPE'].unique()
 
+st.header('Filters')
 # Filter projects based on selected filters
 selected_prijsklasse = st.multiselect('Selecteer prijsklasse', list(unique_prijsklasse))
 selected_projectfase = st.multiselect('Selecteer projectfase', list(unique_projectfase))
