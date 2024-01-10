@@ -5,6 +5,16 @@ from streamlit_folium import folium_static
 
 data = pd.read_csv('./data/Timo_Where_to_go.csv', sep=';')
 
+# Define the URL for the custom icon
+custom_icon_url = './images/pin.png'
+
+# Create a custom icon object
+custom_icon = folium.CustomIcon(
+    custom_icon_url,
+    icon_size=(16, 28),  # Set the size of the icon (width, height)
+    icon_anchor=(8, 28),  # Set the anchor point for the icon
+)
+
 # Drop rows with NaN values in 'PRIJSKLASSE', 'PROJECTFASE', and 'WONINGTYPE' columns
 columns_to_check = ['PRIJSKLASSE', 'PROJECTFASE', 'WONINGTYPE']
 data = data.dropna(subset=columns_to_check)
@@ -48,7 +58,7 @@ for index, row in filtered_data.iterrows():
     folium.Marker(
         location=[latitude, longitude],
         popup=row['NAAMPROJECT'],
-        icon=folium.Icon(color='lightred', icon='pin', prefix='fa', opacity=1, shadow=False)  # Set shadow to False
+        icon=custom_icon
     ).add_to(m)
 
 st.header("Kaart van Eindhoven met rode gebieden voor elk project")
